@@ -105,23 +105,21 @@ points = {'user': 0, 'comp': 0}
 
 while True:
     a = random.choice(words)
-    if is_odd(a):
-        continue
     b = random.choice(words)
-    if is_odd(b):
-        continue
     op = random.choice(("+", "-"))
     if op == "+":
+        user = input(f"{a} + {b} = ")
         for i in b:
             if not i in a:
                 a = a + i
         ans = a
-        user = input(f"{a} + {b} = ")
+
     else:
+        user = input(f"{a} - {b} = ")
         for i in b:
             a = a.replace(i, '')
         ans = a
-        user = input(f"{a} - {b} = ")
+
     if user == str(ans):
         print("Верно!")
         points["player"] += 1
