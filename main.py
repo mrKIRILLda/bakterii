@@ -122,7 +122,7 @@ while True:
 
     if user == str(ans):
         print("Верно!")
-        points["player"] += 1
+        points["user"] += 1
     else:
         print("Ты ошибся. Попробуй ещё разочек.")
         points["comp"] += 1
