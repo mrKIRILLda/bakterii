@@ -1,132 +1,57 @@
-import random
+import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import sessionmaker
+import faker, random
 
-words = [
-    "книга",
-    "учитель",
-    "школа",
-    "древо",
-    "число",
-    "река",
-    "путешествие",
-    "зима",
-    "лето",
-    "осень",
-    "весна",
-    "дорога",
-    "светло",
-    "вечер",
-    "утро",
-    "друг",
-    "счастье",
-    "новости",
-    "праздник",
-    "задание",
-    "колесо",
-    "жизнь",
-    "работа",
-    "фотография",
-    "радость",
-    "музыкант",
-    "театр",
-    "искусство",
-    "культура",
-    "планета",
-    "дом",
-    "город",
-    "друзья",
-    "песни",
-    "приключение",
-    "знание",
-    "спорт",
-    "забота",
-    "событие",
-    "море",
-    "гора",
-    "солнце",
-    "луна",
-    "звезда",
-    "песок",
-    "ветер",
-    "небо",
-    "улыбка",
-    "вдохновение",
-    "мир",
-    "космос",
-    "семья",
-    "собака",
-    "кошка",
-    "еда",
-    "напиток",
-    "музыка",
-    "танец",
-    "вода",
-    "цвет",
-    "роман",
-    "поэзия",
-    "история",
-    "футбол",
-    "бег",
-    "пляж",
-    "парк",
-    "сад",
-    "здание",
-    "машина",
-    "поезд",
-    "самолет",
-    "путеводитель",
-    "пейзаж",
-    "сказка",
-    "легенда",
-    "мода",
-    "стиль",
-    "технология",
-    "наука",
-    "исследование",
-    "новинка",
-    "первый",
-    "второй",
-    "младший",
-    "старший",
-    "коллекция",
-    "события",
-    "ментор",
-    "взаимодействие",
-    "творчество",
-    "исполнение",
-    "хобби",
-    "журналистика",
-    "кинопроизводство",
-    "компьютер",
-    "программирование",
-    "математика"
-]
+engine = create_engine("postgresql+psycopg2://postgres:96560517bd@localhost/baza")
 
-points = {'user': 0, 'comp': 0}
+Base = declarative_base()
 
-while True:
-    a = random.choice(words)
-    b = random.choice(words)
-    op = random.choice(("+", "-"))
-    if op == "+":
-        user = input(f"{a} + {b} = ")
-        for i in b:
-            if not i in a:
-                a = a + i
-        ans = a
+fake = faker.Faker("ru_RU")
 
-    else:
-        user = input(f"{a} - {b} = ")
-        for i in b:
-            a = a.replace(i, '')
-        ans = a
+class Users(Base):
+    __tablename__ = 'users'
+    ID = Column(Integer, primary_key=True, nullable=False)
+    Name = Column(String(250), nullable=False)
+    Hp = Column(Integer, default=100)
+    Dmg = Column(Integer, default=20)
 
-    if user == str(ans):
-        print("Верно!")
-        points["user"] += 1
-    else:
-        print("Ты ошибся. Попробуй ещё разочек.")
-        points["comp"] += 1
-    print(f'Счёт: {points["user"]}:{points["comp"]}')
-    goout = input('Хош выйти? [0/1] ')
-    if goout == '1':
-        break
+class Cats(Base):
+    __tablename__ = "cats"
+    id = Column(Integer, primary_key=True, nullable=False)
+    name = Column(String(250))
+    color = Column(String(250))
+    Base.metadata.create_all(engine)
+
+
+Base.metadata.create_all(engine)
+Session = sessionmaker(bind=engine)
+s = Session()
+
+# for i in range(400):
+#     a = random.randrange(1000, 9999)
+#     imya = fake.first_name()
+#     usr = Users(ID=a, Name=imya)
+#     s.merge(usr)
+#     s.commit()
+#
+# data = s.query(Users).all()
+# print(data)
+# for n in data:
+#     print(n.Name)
+#
+# data = s.query(Users).filter(Users.Name.endswith('в'))
+# for m in data:
+#     print(m.ID, m.Name)
+
+data = s.query(Users).filter(Users.ID > 1500)
+for m in data:
+    print(m.ID, m.Name)
+# print(data)
+
+s.query(Users).filter(Users.ID == 1000).update({'Name': 'Ненонна'})
+us = Users(ID=1002, Name = 'Некифор')
+s.add(us)
+s.commit()
