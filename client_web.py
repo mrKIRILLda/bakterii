@@ -40,19 +40,11 @@ def draw_bacteries(data: list[str]):
     for num, bact in enumerate(data):
         data_parts = bact.split(" ")
         if len(data_parts) >= 4:
-            try:
-                x = CC[0] + int(data_parts[0])
-                y = CC[1] + int(data_parts[1])
-                size = int(data_parts[2])
-                color = data_parts[3]
-                pygame.draw.circle(screen, color, (x, y), size)
-
-                # # Дополнительно: показывать размер текстом
-                # font = pygame.font.Font(None, 20)
-                # text = font.render(str(size), True, 'white')
-                # screen.blit(text, (x - 10, y - 10))
-            except ValueError:
-                pass
+            x = CC[0] + int(data_parts[0])
+            y = CC[1] + int(data_parts[1])
+            size = int(data_parts[2])
+            color = data_parts[3]
+            pygame.draw.circle(screen, color, (x, y), size)
 
 
 name = ""
@@ -94,7 +86,7 @@ sock.send(("color:<" + name + "," + color + ">").encode())
 WIDTH = 800
 HEIGHT = 600
 
-player_size = 50  # Начальный размер
+radius = 50
 CC = (WIDTH // 2, HEIGHT // 2)
 old = (0, 0)
 
@@ -118,7 +110,7 @@ while run:
         vector = pos[0] - CC[0], pos[1] - CC[1]
         lenv = math.sqrt(vector[0] ** 2 + vector[1] ** 2)
 
-        if lenv <= player_size:
+        if lenv <= radius:
             vector = (0, 0)
         else:
             vector = (vector[0] / lenv, vector[1] / lenv)
@@ -126,35 +118,26 @@ while run:
         if vector != old:
             old = vector
             msg = f"<{vector[0]},{vector[1]}>"
-            # print("Отправляю вектор:", msg)
+            print("Отправляю:", msg)
             try:
                 sock.send(msg.encode())
-            except Exception as e:
-                print("Ошибка отправки:", e)
+            except:
+                print("Ошибка отправки")
 
     # Получение данных от сервера (неблокирующее)
     try:
         data = sock.recv(1024).decode()
+        print('Получил:', data)
+
         if data:
-            # print('Получил:', data)
             parsed_data = find(data)
             if parsed_data:
                 data_list = parsed_data.split(",")
                 screen.fill('gray')
-
-                # Обновляем размер игрока из данных сервера
-                # Первая бактерия в списке - наш игрок
-                if data_list and data_list[0] != '':
-                    player_data = data_list[0].split(" ")
-                    if len(player_data) >= 3:
-                        try:
-                            player_size = max(10, int(player_data[2]))  # Минимальный размер 10
-                        except ValueError:
-                            pass
-
-                pygame.draw.circle(screen, color, CC, player_size)
-                if len(data_list) > 1 and data_list[1] != '':  # Отрисовываем остальных, если есть
-                    draw_bacteries(data_list[1:])
+                pygame.draw.circle(screen, color, CC, radius)
+                draw_bacteries(data_list)
+            else:
+                print("Нет данных для отрисовки")
         else:
             print("Сервер отключился")
             run = False
